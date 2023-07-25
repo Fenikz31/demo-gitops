@@ -64,8 +64,6 @@ spec:
     services:
     - name: demo-test
       port: 3000
-    middlewares:
-    - name: default-headers
   tls:
     secretName: demo-test-tls
 ---
