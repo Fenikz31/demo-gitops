@@ -27,6 +27,8 @@ spec:
       containers:
       - name: demo-test
         image: registry.fenikz.eu/hello-gitops
+      imagePullSecrets:
+      - name: registry-secret
 ---
 apiVersion: v1
 kind: Service
