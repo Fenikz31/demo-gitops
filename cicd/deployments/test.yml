@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-test
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: demo-test
+  namespace: default
+  labels:
+    app: demo-test
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: demo-test
+  template:
+    metadata:
+      labels:
+        app: demo-test
+    spec:
+      containers:
+      - name: nginx
+        image: registry.fenikz.eu/hello-gitops:latest
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-test
+  namespace: demo-test
+spec:
+  selector:
+    app: demo-test
+  # ---
+  type: ClusterIP
+  # ClusterIP means this service can be accessed by any pod in the cluster
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: demo-test
+  namespace: demo-test
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`www.demo-test.cloud.fenikz.eu`)
+    kind: Rule
+    services:
+    - name: demo-test
+      port: 80
+  - match: Host(`demo-test.cloud.fenikz.eu`)
+    kind: Rule
+    services:
+    - name: demo-test
+      port: 80
+    middlewares:
+    - name: default-headers
+  tls:
+    secretName: demo-test-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argo-cloud-fenikz-eu
+  namespace: demo-test
+spec:
+  secretName: demo-test-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "*.cloud.fenikz.eu"
+  dnsNames:
+  - "cloud.fenikz.eu"
+  - "*.cloud.fenikz.eu"
