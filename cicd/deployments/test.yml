@@ -25,9 +25,8 @@ spec:
         app: demo-test
     spec:
       containers:
-      - name: nginx
+      - name: demo-test
         image: registry.fenikz.eu/hello-gitops:latest
-
 ---
 apiVersion: v1
 kind: Service
