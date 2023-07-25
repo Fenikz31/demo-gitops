@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: demo-test
-        image: ghcr.io/fenikz31/demo-gitops:1.0.0
+        image: registry.fenikz.eu/hello-gitops
 ---
 apiVersion: v1
 kind: Service
